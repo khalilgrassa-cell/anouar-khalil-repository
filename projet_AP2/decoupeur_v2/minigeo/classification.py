@@ -20,6 +20,7 @@ class Noeud:
             """
             
             # construction de la dot
+
             lignes = ["digraph g {"]
             pile = [self]
             
@@ -39,6 +40,7 @@ class Noeud:
             lignes.append("}")
             source_dot = "\n".join(lignes)
             print(source_dot)
+
 
             dot_path = "arbre.dot"
             png_path = "arbre.png"
@@ -66,15 +68,25 @@ def arbre_inclusion(polygones):
     polygones_triees = sorted(polygones, key=lambda p: p.surface(), reverse=True)
     arbre = Noeud("PLAN")
     noeuds = [Noeud(p) for p in polygones_triees] 
+
+    # A changer 
+        
+    """
+
     for i in range(len(noeuds) - 1, -1, -1):
         j = i - 1
-        while j > -1 and (not polygones_triees[j].contient(polygones_triees[i])):
+            
+        
+        while j > -1 and (not polygones_triees[i].contient(polygones_triees[j])):
+            print(polygones_triees[i].contient(polygones_triees[j]))
             j -= 1 
+            
         if j == -1:
             arbre.ajouter_enfant(noeuds[i])
         else:
             noeuds[j].ajouter_enfant(noeuds[i])
     return arbre
+        """
 
 def main():
     p1 = Polygone.carre((0, 0), 10)
@@ -82,7 +94,7 @@ def main():
     p3 = Polygone.carre((-2, -2), 2)
     p4 = Polygone.carre((2, 2), 1)
     p5 = Polygone.carre((15, 15), 5)
-    polygones = [p1, p4, p3, p2, p5]
+    polygones = [p1, p3, p2, p5 , p4]
     affiche(*polygones)
     racine = arbre_inclusion(polygones)
     racine.affichage()
