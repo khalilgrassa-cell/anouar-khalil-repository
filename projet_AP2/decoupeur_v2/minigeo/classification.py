@@ -35,29 +35,26 @@ class Noeud:
                     lignes.append(f"    {identifiant} -> {id_enfant};")
                     pile.append(enfant)
                 
+            
             lignes.append("}")
             source_dot = "\n".join(lignes)
-
             print(source_dot)
 
-            # convertir la dot en png puis affichage sur kitty
-            
-            with tempfile.TemporaryDirectory() as tmpdir:
-                dot_path = os.path.join(tmpdir, "arbre.dot")
-                png_path = os.path.join(tmpdir, "arbre.png")
+            dot_path = "arbre.dot"
+            png_path = "arbre.png"
 
-                with open(dot_path, "w") as f:
-                    f.write(source_dot)
+            with open(dot_path, "w") as f:
+                f.write(source_dot)
 
-                result = subprocess.run(
-                    ["dot", "-Tpng", dot_path, "-o", png_path],
-                    capture_output=True, text=True
-                )
-                if result.returncode != 0:
-                    
-                    return
+            result = subprocess.run(
+                ["dot", "-Tpng", dot_path, "-o", png_path],
+                capture_output=True, text=True
+            )
+            if result.returncode != 0:
+                print("Erreur graphviz:", result.stderr)
+                return
 
-                subprocess.run(["kitty", "+kitten", "icat", png_path])
+            subprocess.run(["kitty", "+kitten", "icat", png_path])
 
 def arbre_inclusion(polygones):
     """
