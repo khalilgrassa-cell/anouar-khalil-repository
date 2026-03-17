@@ -18,29 +18,30 @@ class Noeud:
             """
             creation d'un fichier dot, conversion en png et affichage dans kitty
             """
-            # --- Construction du source dot ---
+            
+            # construction de la dot
             lignes = ["digraph g {"]
             pile = [self]
-            while pile:
+            
+            while pile :
                 noeud = pile.pop()
                 if noeud.contenu == "PLAN":
                     identifiant = "nPLAN"
-                else:
+                elif len(noeud.enfants) != 0 and noeud.contenu != "PLAN":
                     identifiant = f"n{id(noeud.contenu)}"
-                lignes.append(f"    {identifiant};")
+                    lignes.append(f"    {identifiant};")
                 for enfant in noeud.enfants:
-                    if enfant.contenu == "PLAN":
-                        id_enfant = "nPLAN"
-                    else:
-                        id_enfant = f"n{id(enfant.contenu)}"
+                    id_enfant = f"n{id(enfant.contenu)}"
                     lignes.append(f"    {identifiant} -> {id_enfant};")
                     pile.append(enfant)
+                
             lignes.append("}")
             source_dot = "\n".join(lignes)
 
             print(source_dot)
 
-            # --- Écriture + conversion + affichage ---
+            # convertir la dot en png puis affichage sur kitty
+            
             with tempfile.TemporaryDirectory() as tmpdir:
                 dot_path = os.path.join(tmpdir, "arbre.dot")
                 png_path = os.path.join(tmpdir, "arbre.png")
