@@ -1,9 +1,6 @@
 from minigeo.polygone import Polygone
 from minigeo.affichable import affiche
 import subprocess
-import tempfile
-import os
-
 
 class Noeud:
     def __init__(self, contenu):
@@ -30,7 +27,7 @@ class Noeud:
                     identifiant = "nPLAN"
                 elif len(noeud.enfants) != 0 and noeud.contenu != "PLAN":
                     identifiant = f"n{id(noeud.contenu)}"
-                    lignes.append(f"    {identifiant};")
+                    
                 for enfant in noeud.enfants:
                     id_enfant = f"n{id(enfant.contenu)}"
                     lignes.append(f"    {identifiant} -> {id_enfant};")
@@ -40,7 +37,6 @@ class Noeud:
             lignes.append("}")
             source_dot = "\n".join(lignes)
             print(source_dot)
-
 
             dot_path = "arbre.dot"
             png_path = "arbre.png"
@@ -71,15 +67,10 @@ def arbre_inclusion(polygones):
     arbre = Noeud("PLAN")
     noeuds = [Noeud(p) for p in polygones_triees] 
     
-    # A changer
-
-    L = [p.surface() for p in polygones_triees]
-    print(L)
     for i in range(len(noeuds) - 1, -1, -1):
         j = i - 1
         
         while j > -1 and (not polygones_triees[j].contient(polygones_triees[i])):
-            print(polygones_triees[j].contient(polygones_triees[i]))
             j -= 1 
             
         if j == -1:
