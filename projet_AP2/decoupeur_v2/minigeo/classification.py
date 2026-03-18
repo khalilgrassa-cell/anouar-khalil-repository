@@ -59,26 +59,27 @@ class Noeud:
             subprocess.run(["kitty", "+kitten", "icat", png_path])
 
 def arbre_inclusion(polygones):
+    
     """
     prend un ensemble de polygones qui ne s'intersectent pas (hormis sur leur bord).
     renvoie un arbre (le noeud racine etant le plan) indiquant qui est inclu dans qui.
     pre-condition: pas de doublons, pas d'intersections hors bordures.
     """
+
     polygones = list(polygones)
-    polygones_triees = sorted(polygones, key=lambda p: p.surface(), reverse=True)
+    polygones_triees = sorted(polygones, key=lambda p: abs(p.surface()), reverse=True)
     arbre = Noeud("PLAN")
     noeuds = [Noeud(p) for p in polygones_triees] 
+    
+    # A changer
 
-    # A changer 
-        
-    """
-
+    L = [p.surface() for p in polygones_triees]
+    print(L)
     for i in range(len(noeuds) - 1, -1, -1):
         j = i - 1
-            
         
-        while j > -1 and (not polygones_triees[i].contient(polygones_triees[j])):
-            print(polygones_triees[i].contient(polygones_triees[j]))
+        while j > -1 and (not polygones_triees[j].contient(polygones_triees[i])):
+            print(polygones_triees[j].contient(polygones_triees[i]))
             j -= 1 
             
         if j == -1:
@@ -86,16 +87,17 @@ def arbre_inclusion(polygones):
         else:
             noeuds[j].ajouter_enfant(noeuds[i])
     return arbre
-        """
+        
 
 def main():
     p1 = Polygone.carre((0, 0), 10)
     p2 = Polygone.carre((0, 0), 8)
-    p3 = Polygone.carre((-2, -2), 2)
-    p4 = Polygone.carre((2, 2), 1)
-    p5 = Polygone.carre((15, 15), 5)
-    polygones = [p1, p3, p2, p5 , p4]
-    affiche(*polygones)
+
+    p3 = Polygone.carre((15, 15),5)
+    p5 = Polygone.carre((0, 0), 1)
+    p4 = Polygone.carre((-3, -3), 2)
+    polygones = [p1 , p2 , p3 , p4 , p5]
+    affiche(polygones)
     racine = arbre_inclusion(polygones)
     racine.affichage()
 
