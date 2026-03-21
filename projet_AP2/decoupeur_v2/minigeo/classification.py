@@ -12,54 +12,51 @@ class Noeud:
 
     
     def affichage(self):
-        
-        """
-        Création d'un fichier dot, conversion en png et affichage dans kitty
-        """
+            """
+            creation d'un fichier dot, conversion en png et affichage dans kitty
+            """
+            
+            # construction de la dot
 
-        # construction du fichier .dot
+            lignes = ["digraph g {"]
+            pile = [self]
 
-        lignes = ["digraph g {"]  
-        pile = [self]             # On commence le parcours depuis la racine
-
-        while pile:
-            noeud = pile.pop()    # On dépile le noeud à traiter
-
-            # Génération d'un identifiant unique pour le noeud courant
-            if noeud.contenu == "PLAN":
-                identifiant = "nPLAN"
-            elif len(noeud.enfants) != 0 and noeud.contenu != "PLAN":
-                identifiant = f"n{id(noeud.contenu)}"
-
-                # Ajout des arêtes vers les enfants
+            while pile :
+                noeud = pile.pop()
+                if noeud.contenu == "PLAN":
+                    identifiant = "nPLAN"
+                elif len(noeud.enfants) != 0 and noeud.contenu != "PLAN":
+                    identifiant = f"n{id(noeud.contenu)}"
+                    
                 for enfant in noeud.enfants:
                     id_enfant = f"n{id(enfant.contenu)}"
-                    lignes.append(f"    {identifiant} -> {id_enfant};")  
-                    pile.append(enfant) 
+                    lignes.append(f"    {identifiant} -> {id_enfant};")
+                    pile.append(enfant)
+                
+            
+            lignes.append("}")
+            source_dot = "\n".join(lignes)
+            print(source_dot)
 
-        lignes.append("}")
-        source_dot = "\n".join(lignes)  
-        print(source_dot)
+            dot_path = "arbre.dot"
+            png_path = "arbre.png"
 
-        dot_path = "arbre.dot"
-        png_path = "arbre.png"
+            
 
-        with open(dot_path, "w") as f:
-            f.write(source_dot)
+            with open(dot_path, "w") as f:
+                f.write(source_dot)
 
-        # conversion du dot au png 
+            # coversion au format png
+            
+            result = subprocess.run(
+                ["dot", "-Tpng", dot_path, "-o", png_path],
+                capture_output=True, text=True
+            )
+            if result.returncode != 0:
+                print("Erreur graphviz:", result.stderr)
+                return
 
-        result = subprocess.run(
-            ["dot", "-Tpng", dot_path, "-o", png_path],
-            capture_output=True, text=True
-        )
-
-        if result.returncode != 0:
-            print("Erreur graphviz:", result.stderr)  # Affiche l'erreur si la conversion échoue
-            return
-
-
-        subprocess.run(["kitty", "+kitten", "icat", png_path])
+            subprocess.run(["kitty", "+kitten", "icat", png_path])
 
 def arbre_inclusion(polygones):
     
@@ -69,30 +66,31 @@ def arbre_inclusion(polygones):
     pre-condition: pas de doublons, pas d'intersections hors bordures.
     """
 
-    # on fait le tri des plolygones selon leur surface à l'ordre décroissant
+    # on fait le tri des polygones selon la surface à l'ordre décroissant
     
     polygones = list(polygones)
     polygones_triees = sorted(polygones, key=lambda p: abs(p.surface()), reverse=True) 
     arbre = Noeud("PLAN")
     
-    # on associe a chaque polygones de la lsite de spolygones triées un noeud 
+    # on associe à chaque polygone de la liste des polygones triés un noeud 
 
     noeuds = [Noeud(p) for p in polygones_triees] 
     
     for i in range(len(noeuds) - 1, -1, -1): # on parcourt les polygones à l'ordre croissant
-        j = i - 1 # on considere initilament le plus petit 
-                # polygone qui est plus grand que le polygone designe par la nuemrotation i
+        j = i - 1 
+        # on considère initialement le plus petit polygone qui est plus grand que le polygone désigné par i
         
-        # on verifie si tout les polygones plus grand que i le contient ou pas si oui on sort sinon on décremente j
+        # on décrémente j jusqu'à ce qu'on trouve un polygone père ou j vaut -1
+
         while j > -1 and (not polygones_triees[j].contient(polygones_triees[i])): 
             j -= 1 
             
-        if j == -1: # si on n'a pas trouvé un polygone qui contient i alors il est directement issu du plan (il n est pas le fils d'aucun polygone) 
+        if j == -1: # si on n'a pas trouvé un polygone qui contient i alors il est directement issu du plan (il n'est le fils d'aucun polygone) 
             arbre.ajouter_enfant(noeuds[i])
-        else: #sinon il est le fils du plus petit polygone qui le contient
+        else: # sinon il est le fils du polygone j 
             noeuds[j].ajouter_enfant(noeuds[i])
     """
- 
+    
     Calcul de complexité au pire cas :
  
     Soit n = nombre de polygones et k = nombre maximal de points d'un polygone.
