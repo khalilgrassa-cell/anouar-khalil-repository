@@ -85,24 +85,34 @@ def arbre_inclusion(polygones):
         else: #sinon il est le fils du plus petit polygone qui le contient
             noeuds[j].ajouter_enfant(noeuds[i])
     """
-    
-    Calcul de Complexité au pire des cas:
-        au pire des cas on a le plus que possible de l'operation contient , ie
-        que la  boucle while s'arrete seuleme,t lorsque j vaut -1 donc aucun polygone 
-        contient aucun polygone.
-
-        Le nombre de fois que while se répete dépend de la valeur de i donc si i = len(noeuds) -1
-        contient se répete len(noeuds) - 2 fois , si i = i = len(noeuds) - 2 contient se repete (len(noeuds) -3) fois ..
-        donc en notant len(noeuds) = n , au pire de cas on fait appel à contient:
-        n-1 + n-2 + n-3 + .... + 1 = n*(n-1)/2 fois soit alors O(n**2) fois de contient:
-        en plus que ça en notant k = max{p = nb points d'un polygone) ; pour tout les polygones} et en retournant à la definition
-        de la fonction contient la fonction contient est bien O(p**2) avec p = point d'un polygone donc 
-        pour tout les polygones on a bien O(p**2) = O(k**2)
-        on conclut alors que la complexité au pire des cas de la fonction arbre_inclusion est bien
-        O((n**2) * (k**2))
-    
+ 
+    Calcul de complexité au pire cas :
+ 
+    Soit n = nombre de polygones et k = nombre maximal de points d'un polygone.
+ 
+    La boucle externe parcourt les n noeuds (indice i de n-1 à 0).
+    Pour chaque i, la boucle while effectue au plus i appels à `contient`
+    (elle s'arrête dès qu'un polygone contenant le polygone i est trouvé,
+    ou lorsque j atteint -1 si aucun ne le contient).
+ 
+    Le pire cas correspond à la situation où aucun polygone n'en contient un autre
+    (tous les polygones sont disjoints) : la boucle while va jusqu'à j = -1
+    pour chaque i. Le nombre total d'appels à `contient` est alors :
+ 
+        (n-1) + (n-2) + ... + 1 = n*(n-1)/2 = O(n²)
+ 
+    Complexité de `contient(self, autre)` :
+    La méthode calcule d'abord les coordonnées x pertinentes en O(k),
+    puis pour chaque y trouvé sur la droite verticale (au plus O(k) valeurs),
+    elle appelle `contient_point` qui parcourt tous les segments de self en O(k).
+    La complexité de `contient` est donc O(k²).
+ 
+    Complexité totale de `arbre_inclusion` :
+ 
+        O(n²) appels à contient * O(k²) par appel = O(n² * k²)
+ 
     """
-
+ 
     return arbre
 
 

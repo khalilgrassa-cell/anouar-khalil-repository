@@ -55,6 +55,5 @@ def main():
 
     traitement_tranche(tranches[tranche_cible])
 
-
 if __name__ == "__main__":
     main()
