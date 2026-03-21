@@ -12,47 +12,54 @@ class Noeud:
 
     
     def affichage(self):
-            """
-            creation d'un fichier dot, conversion en png et affichage dans kitty
-            """
-            
-            #construction de la dot
+        
+        """
+        Création d'un fichier dot, conversion en png et affichage dans kitty
+        """
 
-            lignes = ["digraph g {"]
-            pile = [self]
-            
-            while pile :
-                noeud = pile.pop()
-                if noeud.contenu == "PLAN":
-                    identifiant = "nPLAN"
-                elif len(noeud.enfants) != 0 and noeud.contenu != "PLAN":
-                    identifiant = f"n{id(noeud.contenu)}"
-                    
+        # construction du fichier .dot
+
+        lignes = ["digraph g {"]  
+        pile = [self]             # On commence le parcours depuis la racine
+
+        while pile:
+            noeud = pile.pop()    # On dépile le noeud à traiter
+
+            # Génération d'un identifiant unique pour le noeud courant
+            if noeud.contenu == "PLAN":
+                identifiant = "nPLAN"
+            elif len(noeud.enfants) != 0 and noeud.contenu != "PLAN":
+                identifiant = f"n{id(noeud.contenu)}"
+
+                # Ajout des arêtes vers les enfants
                 for enfant in noeud.enfants:
                     id_enfant = f"n{id(enfant.contenu)}"
-                    lignes.append(f"    {identifiant} -> {id_enfant};")
-                    pile.append(enfant)
-                
-            
-            lignes.append("}")
-            source_dot = "\n".join(lignes)
-            print(source_dot)
+                    lignes.append(f"    {identifiant} -> {id_enfant};")  
+                    pile.append(enfant) 
 
-            dot_path = "arbre.dot"
-            png_path = "arbre.png"
+        lignes.append("}")
+        source_dot = "\n".join(lignes)  
+        print(source_dot)
 
-            with open(dot_path, "w") as f:
-                f.write(source_dot)
+        dot_path = "arbre.dot"
+        png_path = "arbre.png"
 
-            result = subprocess.run(
-                ["dot", "-Tpng", dot_path, "-o", png_path],
-                capture_output=True, text=True
-            )
-            if result.returncode != 0:
-                print("Erreur graphviz:", result.stderr)
-                return
+        with open(dot_path, "w") as f:
+            f.write(source_dot)
 
-            subprocess.run(["kitty", "+kitten", "icat", png_path])
+        # conversion du dot au png 
+
+        result = subprocess.run(
+            ["dot", "-Tpng", dot_path, "-o", png_path],
+            capture_output=True, text=True
+        )
+
+        if result.returncode != 0:
+            print("Erreur graphviz:", result.stderr)  # Affiche l'erreur si la conversion échoue
+            return
+
+
+        subprocess.run(["kitty", "+kitten", "icat", png_path])
 
 def arbre_inclusion(polygones):
     
